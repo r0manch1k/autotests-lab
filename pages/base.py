@@ -6,11 +6,13 @@ from selenium.webdriver.remote.webdriver import WebDriver, WebElement
 class BasePage:
     driver: WebDriver
 
+    base_url: str
+
     def __init__(self, driver: WebDriver) -> None:
         self.driver = driver
 
-    def get(self, base: str, path: str = "") -> None:
-        self.driver.get(base + path)
+    def get(self, path: str = "") -> None:
+        self.driver.get(self.base_url + path)
 
     def find(self, locator, timeout=10) -> WebElement:
         return WebDriverWait(self.driver, timeout).until(
@@ -21,7 +23,10 @@ class BasePage:
         element = WebDriverWait(self.driver, timeout).until(
             EC.element_to_be_clickable(locator)
         )
-        element.click()
+        try:
+            element.click()
+        except Exception:
+            self.driver.execute_script("arguments[0].click();", element)
 
     @property
     def url(self) -> str:
